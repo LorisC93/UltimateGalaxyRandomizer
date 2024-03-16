@@ -56,7 +56,7 @@ namespace UltimateGalaxyRandomizer.Logic
             Freedom = reader.ReadInt16();
         }
 
-        public Param Clone() => new Param
+        public Param Clone() => new()
         {
             Offset = Offset,
             BaseID = BaseID,

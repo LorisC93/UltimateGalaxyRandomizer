@@ -1,15 +1,9 @@
 ﻿namespace UltimateGalaxyRandomizer.Logic.Soccer
 {
-    public class SoccerMove
+    public class SoccerMove(Move.Move move, byte level)
     {
-        public Move.Move Move { get; set; }
+        public Move.Move Move { get; set; } = move;
 
-        public byte Level { get; set; }
-
-        public SoccerMove(Move.Move move, byte level)
-        {
-            Move = move;
-            Level = level;
-        }
+        public byte Level { get; set; } = level;
     }
 }

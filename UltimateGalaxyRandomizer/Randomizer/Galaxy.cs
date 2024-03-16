@@ -403,40 +403,7 @@ namespace UltimateGalaxyRandomizer.Randomizer
         private void WriteSoccer(Team team)
         {
             var soccerFile = team.ScriptID.ToString().PadLeft(4, '0');
-
             if (!File.Exists(Directory + "/ie6_b_fa/data/res/soccer/soccer_chara_btl" + soccerFile + ".cfg.bin")) return;
-
-            var teamSoccerChara = team.SoccerChara;
-
-            // Fix Scripted Player
-            foreach (var player in teamSoccerChara.Players)
-            {
-                // Update Moveset
-                for (int m = 0; m < 4; m++)
-                {
-                    // Learn skill
-                    if (player.Player.Skills[m].LearnAtLevel < team.Param.Level)
-                    {
-                        player.Moves[m] = new SoccerMove(player.Player.Skills[m].Skill, 1);
-                    } else
-                    {
-                        player.Moves[m] = null;
-                    }
-                }
-
-                // Update Avatar
-                if (player.Player.Param.Avatar == 0x0) continue;
-
-                if (Avatars.FightingSpirits.TryGetValue(player.Player.Param.Avatar, out var spirit))
-                {
-                    player.Avatar = new SoccerAvatar(spirit, 1);
-                }
-                else if (Avatars.Totems.TryGetValue(player.Player.Param.Avatar, out var totem))
-                {
-                    player.Avatar = new SoccerAvatar(totem, 1);
-                }
-            }
-
             team.SoccerChara.Write(Directory + "/ie6_b_fa/data/res/soccer/soccer_chara_btl" + soccerFile + ".cfg.bin");
         }
         private void ReadTeams()
@@ -529,14 +496,9 @@ namespace UltimateGalaxyRandomizer.Randomizer
             var soccerConfigWriter = new DataWriter(Directory + "/ie6_b_fa/data/res/soccer/soccer_config_0.01.cfg.bin");
             var teamParamWriter = new DataWriter(Directory + "/ie6_b_fa/data/res/team/team_param.cfg.bin");
 
-            // Merge Teams Dictionaries to one
-            var teams = new Dictionary<uint, Team>();
-            Teams.Story.ToList().ForEach(x => teams.Add(x.Key, x.Value));
-            Teams.Battle.ToList().ForEach(x => teams.Add(x.Key, x.Value));
-            Teams.TaisenRoad.ToList().ForEach(x => teams.Add(x.Key, x.Value));
-            Teams.LegendGate.ToList().ForEach(x => teams.Add(x.Key, x.Value));
+            List<Team> teams = [..Teams.Story.Values, .. Teams.Battle.Values, .. Teams.TaisenRoad.Values, ..Teams.LegendGate.Values];
 
-            foreach (var team in teams.Values)
+            foreach (var team in teams)
             {
                 team.Write(soccerConfigWriter);
 

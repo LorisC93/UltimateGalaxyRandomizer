@@ -689,19 +689,41 @@ namespace UltimateGalaxyRandomizer.Randomizer
                     }
                 }
 
-                if (options["groupBoxTeamSpiritLevel"].Name == "Random" && team.SoccerChara != null)
+                if (team.SoccerChara == null) continue;
+
+                // Update Soccer Moves
+                foreach (var soccerPlayer in team.SoccerChara.Players)
                 {
-                    team.SoccerChara.Players.Where(p => p.Avatar is { Avatar: FightingSpirit }).ToList().ForEach(p =>
+                    for (int m = 0; m < soccerPlayer.Player.Skills.Length; m++)
                     {
-                        p.Avatar.Level = Evolutions.FightingSpirit.Keys.Random();
-                    });
+                        soccerPlayer.Moves[m] = soccerPlayer.Player.Skills[m].LearnAtLevel <= team.Param.Level
+                            ? new SoccerMove(soccerPlayer.Player.Skills[m].Skill, soccerPlayer.Player.Skills[m].SkillLevel)
+                            : null;
+                    }
                 }
 
-                if (options["groupBoxMixiMax"].Name == "Random" && team.SoccerChara != null)
+                // Update Soccer Avatar
+                team.SoccerChara.Players.Where(p => p.Player.Param.Avatar > 0).ToList().ForEach(soccerPlayer =>
+                {
+                    if (Avatars.FightingSpirits.TryGetValue(soccerPlayer.Player.Param.Avatar, out var spirit))
+                    {
+                        soccerPlayer.Avatar = new SoccerAvatar(spirit,
+                            options["groupBoxTeamSpiritLevel"].Name == "Random" ? Evolutions.FightingSpirit.Keys.Random() : (byte)1);
+                    }
+                    else if (Avatars.Totems.TryGetValue(soccerPlayer.Player.Param.Avatar, out var totem))
+                    {
+                        soccerPlayer.Avatar = new SoccerAvatar(totem, 1);
+                    }
+                });
+
+                // Set Soccer MixiMax
+                if (options["groupBoxMixiMax"].Name == "Random")
                 {
                     team.SoccerChara.Players.ForEach(p =>
                     {
-                        var haveMixiMax = Probability.FromPercentage(Convert.ToInt32(options["groupBoxMixiMax"].NumericUpDowns["numericUpDownMixiMaxChance"].Value));
+                        var haveMixiMax =
+                            Probability.FromPercentage(Convert.ToInt32(options["groupBoxMixiMax"].NumericUpDowns["numericUpDownMixiMaxChance"]
+                                .Value));
                         if (haveMixiMax)
                         {
                             var mixiPlayer = Players.All.Values.Except([p.Player]).Random();
