@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using UltimateGalaxyRandomizer.Logic.Common;
-using UltimateGalaxyRandomizer.Logic.Move;
 using UltimateGalaxyRandomizer.Tools;
 
 namespace UltimateGalaxyRandomizer.Logic.Avatar
@@ -30,7 +28,7 @@ namespace UltimateGalaxyRandomizer.Logic.Avatar
 
             SP = reader.ReadInt16();
             reader.Skip(0x02);
-            SPUP = reader.ReadBytes(0x04).Select(x => x).ToArray();
+            SPUP = reader.ReadBytes(4);
             reader.Skip(0x08);
             Position = (MoveType)reader.ReadByte();
             Element = (Element)reader.ReadByte();
@@ -52,7 +50,7 @@ namespace UltimateGalaxyRandomizer.Logic.Avatar
 
             writer.Write(SP);
             writer.Skip(0x02);
-            writer.Write(SPUP.Select(x => Convert.ToByte(x)).ToArray());
+            writer.Write(SPUP);
             writer.Skip(0x08);
             writer.Write(Convert.ToByte(Position));
             writer.Write(Convert.ToByte(Element));

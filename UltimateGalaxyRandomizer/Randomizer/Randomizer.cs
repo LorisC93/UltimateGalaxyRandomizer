@@ -509,24 +509,14 @@ namespace UltimateGalaxyRandomizer.Randomizer
 
                 if (options["groupBoxTotemRoulette"].Name == "Random")
                 {
-                    // Create Temp Skill List
-                    var tempSkills = Moves.TotemMoves.Where(x => x.Value.Type == MoveType.Skill).ToDictionary(x => x.Key, x => x.Value);
+                    var compatibleSkills = Moves.TotemSkillsByPosition[avatar.Position];
 
                     // Remove Miss
                     if (options["groupBoxTotemRoulette"].CheckBoxes["checkBoxRouletteNoMiss"].Checked)
-                    {
-                        tempSkills.Remove(0x9A1F8583);
-                    }
+                        compatibleSkills.Remove(Moves.MissTotemSkill);
 
-                    for (int s = 0; s < avatar.SkillRoulette.Length; s++)
-                    {
-                        var randomSkill = tempSkills.Random();
-                        avatar.SkillRoulette[s] = randomSkill.Key;
-
-                        // Remove Move to avoid duplication
-                        if (options["groupBoxTotemRoulette"].CheckBoxes["checkBoxRouletteNoDuplicate"].Checked) 
-                            tempSkills.Remove(randomSkill.Key);
-                    }
+                    var allowDuplicates = !options["groupBoxTotemRoulette"].CheckBoxes["checkBoxRouletteNoDuplicate"].Checked;
+                    avatar.SkillRoulette = compatibleSkills.Random(avatar.SkillRoulette.Length, allowDuplicates).ToArray();
                 }
 
                 if (options["groupBoxTotemPoint"].Name == "Random")

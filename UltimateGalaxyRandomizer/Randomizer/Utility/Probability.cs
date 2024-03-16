@@ -5,24 +5,27 @@ namespace UltimateGalaxyRandomizer.Randomizer.Utility
 {
 	public static class Probability
     {
-        public static readonly System.Random Generator = new System.Random();
+        public static readonly System.Random Generator = new();
         
         public static int RandomIndex<T>(this IEnumerable<T> enumerable) => Generator.Next(0, enumerable.Count());
         public static T Random<T>(this IEnumerable<T> enumerable)
         {
             var list = enumerable.ToList();
             return list[list.RandomIndex()];
-        }   
+        }
 
-        public static IEnumerable<T> Random<T>(this IEnumerable<T> enumerable, int number)
+        public static IEnumerable<T> Random<T>(this IEnumerable<T> enumerable, int number, bool allowDuplicates = false)
         {
             var list = enumerable.ToList();
-            var selected = new List<T>();
-            while (selected.Count < number && list.Except(selected).Any())
+            List<T> selected = [];
+            while (selected.Count < number && Remaining().Any())
             {
-                selected.Add(list.Except(selected).Random());
+                selected.Add(Remaining().Random());
             }
+
             return selected;
+
+            IEnumerable<T> Remaining() => allowDuplicates ? list : list.Except(selected);
         }
 
         public static bool FromPercentage(int value) => Generator.Next(0, 100) < value;

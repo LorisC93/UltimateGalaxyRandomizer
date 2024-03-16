@@ -301,6 +301,7 @@ namespace UltimateGalaxyRandomizer.Randomizer
                 Avatars.Totems[avatarId].Read(itemConfigReader);
             }
 
+            var totemSkills = Avatars.Totems.Values.GroupBy(a => a.Position).Select(p => (p.Key, p.SelectMany(a => a.SkillRoulette).Distinct()));
             // Close Stream
             itemConfigReader.Close();
         }

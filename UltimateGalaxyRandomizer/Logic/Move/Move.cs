@@ -4,9 +4,9 @@ using UltimateGalaxyRandomizer.Tools;
 
 namespace UltimateGalaxyRandomizer.Logic.Move
 {
-    public class Move
+    public class Move(string name)
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = name;
 
         public long Offset { get; set; }
 
@@ -35,11 +35,6 @@ namespace UltimateGalaxyRandomizer.Logic.Move
         public short Technique { get; set; }
 
         public sbyte Damage { get; set; }
-
-        public Move(string name)
-        {
-            Name = name;
-        }
 
         public void Read(DataReader reader)
         {
