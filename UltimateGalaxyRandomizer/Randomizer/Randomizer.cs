@@ -691,53 +691,50 @@ namespace UltimateGalaxyRandomizer.Randomizer
 
                 if (team.SoccerChara == null) continue;
 
-                // Update Soccer Moves
                 foreach (var soccerPlayer in team.SoccerChara.Players)
                 {
+                    // Update Soccer Moves
                     for (int m = 0; m < soccerPlayer.Player.Skills.Length; m++)
                     {
                         soccerPlayer.Moves[m] = soccerPlayer.Player.Skills[m].LearnAtLevel <= team.Param.Level
                             ? new SoccerMove(soccerPlayer.Player.Skills[m].Skill, soccerPlayer.Player.Skills[m].SkillLevel)
                             : null;
                     }
+
+                    // Update Soccer Avatar
+                    if (soccerPlayer.Player.Param.Avatar > 0)
+                    {
+                        if (Avatars.FightingSpirits.TryGetValue(soccerPlayer.Player.Param.Avatar, out var spirit))
+                        {
+                            soccerPlayer.Avatar = new SoccerAvatar(spirit,
+                                options["groupBoxTeamSpiritLevel"].Name == "Random" ? Evolutions.FightingSpirit.Keys.Random() : (byte)1);
+                        }
+                        else if (Avatars.Totems.TryGetValue(soccerPlayer.Player.Param.Avatar, out var totem))
+                        {
+                            soccerPlayer.Avatar = new SoccerAvatar(totem,
+                                options["groupBoxTeamSpiritLevel"].Name == "Random" ? Evolutions.Totem.Keys.Random() : (byte)1);
+                        }
+                    }
                 }
 
-                // Update Soccer Avatar
-                team.SoccerChara.Players.Where(p => p.Player.Param.Avatar > 0).ToList().ForEach(soccerPlayer =>
+                foreach (var soccerPlayer in team.SoccerChara.Players)
                 {
-                    if (Avatars.FightingSpirits.TryGetValue(soccerPlayer.Player.Param.Avatar, out var spirit))
+                    // Set Soccer MixiMax
+                    var haveMixiMax =
+                        Probability.FromPercentage(Convert.ToInt32(options["groupBoxMixiMax"].NumericUpDowns["numericUpDownMixiMaxChance"].Value));
+                    if (haveMixiMax)
                     {
-                        soccerPlayer.Avatar = new SoccerAvatar(spirit,
-                            options["groupBoxTeamSpiritLevel"].Name == "Random" ? Evolutions.FightingSpirit.Keys.Random() : (byte)1);
+                        var mixiPlayer = teams
+                            .Where(t => t.Value.SoccerChara != null)
+                            .SelectMany(t => t.Value.SoccerChara.Players)
+                            .Where(sp => sp != soccerPlayer)
+                            .Random();
+                        soccerPlayer.MixiMax = mixiPlayer;
                     }
-                    else if (Avatars.Totems.TryGetValue(soccerPlayer.Player.Param.Avatar, out var totem))
+                    else
                     {
-                        soccerPlayer.Avatar = new SoccerAvatar(totem, 1);
+                        soccerPlayer.MixiMax = null;
                     }
-                });
-
-                // Set Soccer MixiMax
-                if (options["groupBoxMixiMax"].Name == "Random")
-                {
-                    team.SoccerChara.Players.ForEach(p =>
-                    {
-                        var haveMixiMax =
-                            Probability.FromPercentage(Convert.ToInt32(options["groupBoxMixiMax"].NumericUpDowns["numericUpDownMixiMaxChance"]
-                                .Value));
-                        if (haveMixiMax)
-                        {
-                            var mixiPlayer = Players.All.Values.Except([p.Player]).Random();
-                            var mixiMoves = mixiPlayer.Skills.Random(2).Select(s => new SoccerMove(s.Skill, s.SkillLevel));
-                            p.MixiMax = new SoccerPlayer(mixiPlayer, mixiMoves.ToArray())
-                            {
-                                Avatar = SoccerCharaConfig.GetAvatar(mixiPlayer.Param.Avatar, Convert.ToByte(Probability.Generator.Next(1, 7)))
-                            };
-                        }
-                        else
-                        {
-                            p.MixiMax = null;
-                        }
-                    });
                 }
             }
         }

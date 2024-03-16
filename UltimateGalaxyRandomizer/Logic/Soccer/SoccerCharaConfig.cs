@@ -9,7 +9,7 @@ namespace UltimateGalaxyRandomizer.Logic.Soccer
 {
     public class SoccerCharaConfig
     {
-        public List<SoccerPlayer> Players { get;  } = new List<SoccerPlayer>();
+        public List<SoccerPlayer> Players { get;  } = [];
 
         private static SoccerPlayer GetPlayer(uint charaParamId)
         {
@@ -50,7 +50,7 @@ namespace UltimateGalaxyRandomizer.Logic.Soccer
             return 0x00;
         }
 
-        public static SoccerAvatar GetAvatar(uint avatarId, byte avatarLevel)
+        private static SoccerAvatar GetAvatar(uint avatarId, byte avatarLevel)
         {
             if (Avatars.FightingSpirits.ContainsKey(avatarId))
             {
@@ -193,14 +193,14 @@ namespace UltimateGalaxyRandomizer.Logic.Soccer
                 }
             }
 
-            DataReader soccerCharaReader = new DataReader(File.ReadAllBytes(path));
-            Int32 unknownHeader = soccerCharaReader.ReadInt32();
-            Int32 size = soccerCharaReader.ReadInt32();
+            var soccerCharaReader = new DataReader(File.ReadAllBytes(path));
+            var unknownHeader = soccerCharaReader.ReadInt32();
+            var size = soccerCharaReader.ReadInt32();
 
             int emptyBlock = 16 - (64 + playerBlock + 5) % 16;
             byte[] outputBlock = new byte[64 + playerBlock + 5 + emptyBlock + soccerCharaReader.Length-size];
 
-            DataWriter outputWrite = new DataWriter(outputBlock);
+            var outputWrite = new DataWriter(outputBlock);
             outputWrite.WriteInt32(unknownHeader);
             outputWrite.WriteInt32(64 + playerBlock + 5 + emptyBlock);
             outputWrite.Write(soccerCharaReader.GetSection(0x08, 0x38));
@@ -224,7 +224,7 @@ namespace UltimateGalaxyRandomizer.Logic.Soccer
         {
             byte[] outputBlock = new byte[moves.Length * 8];
 
-            DataWriter outputWrite = new DataWriter(outputBlock);
+            var outputWrite = new DataWriter(outputBlock);
 
             for (int i = 0; i < moves.Count(); i++)
             {
@@ -259,23 +259,23 @@ namespace UltimateGalaxyRandomizer.Logic.Soccer
 
             byte[] outputBlock = new byte[outputLength];
 
-            DataWriter outputWrite = new DataWriter(outputBlock);
-            outputWrite.Write(new byte[8] {0xEA, 0x6E, 0xA9, 0xEE, 0x04, 0x55, 0xFF, 0xFF});
+            var outputWrite = new DataWriter(outputBlock);
+            outputWrite.Write([0xEA, 0x6E, 0xA9, 0xEE, 0x04, 0x55, 0xFF, 0xFF]);
             outputWrite.WriteUInt32(GetPlayerKey(player));
             outputWrite.WriteInt32(0x0);
-            outputWrite.Write(new byte[16] { 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x54, 0x5B, 0x0C, 0x55, 0x55, 0x55 });
+            outputWrite.Write([0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x54, 0x5B, 0x0C, 0x55, 0x55, 0x55]);
             outputWrite.Write(WriteMoves(player.Moves));
 
             if (player.Avatar != null)
             {
-                outputWrite.Write(new byte[8] { 0x26, 0xDA, 0x99, 0x74, 0x02, 0x05, 0xFF, 0xFF });
+                outputWrite.Write([0x26, 0xDA, 0x99, 0x74, 0x02, 0x05, 0xFF, 0xFF]);
                 outputWrite.WriteUInt32(GetAvatarKey(player.Avatar));
                 outputWrite.WriteInt32(player.Avatar.Level);
             }
 
             if (player.MixiMax != null)
             {
-                outputWrite.Write(new byte[12] { 0xED, 0xCE, 0x12, 0xE9, 0x06, 0x55, 0x05, 0xEF, 0x01, 0x00, 0x00, 0x00 });
+                outputWrite.Write([0xED, 0xCE, 0x12, 0xE9, 0x06, 0x55, 0x05, 0xEF, 0x01, 0x00, 0x00, 0x00]);
                 outputWrite.WriteUInt32(GetPlayerKey(player.MixiMax));
                 outputWrite.Write(WriteMoves(player.MixiMax.Moves));
             }
